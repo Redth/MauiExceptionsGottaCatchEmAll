@@ -2,11 +2,9 @@
 
 namespace MauimonGottaCatchEmAll;
 
-public record ExceptionDetails(string Name, string Exception);
-
 public static class MauiProgram
 {
-	public static event EventHandler<(string, Exception)> OnException;
+	public static event EventHandler<ExceptionEventArgs> OnException;
 
 	public static MauiApp CreateMauiApp()
 	{
@@ -33,37 +31,46 @@ public static class MauiProgram
 
 	private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
 	{
-		OnException?.Invoke(sender, ("TaskScheduler.UnobservedTaskException", e.Exception));
-		e.SetObserved();
+		var args = new ExceptionEventArgs("TaskScheduler.UnobservedTaskException", e.Exception);
+
+		OnException?.Invoke(sender, args);
+
+		if (args.Handled)
+			e.SetObserved();
 	}
 
 	private static void CurrentDomain_FirstChanceException(object sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
 	{
-		OnException?.Invoke(sender, ("AppDomain.CurrentDomain.FirstChanceException", e.Exception));
+		OnException?.Invoke(sender, new ("AppDomain.CurrentDomain.FirstChanceException", e.Exception));
 	}
 
 	private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 	{
-		OnException?.Invoke(sender, ("AppDomain.CurrentDomain.UnhandledException", e.ExceptionObject as Exception));
+		OnException?.Invoke(sender, new ("AppDomain.CurrentDomain.UnhandledException", e.ExceptionObject as Exception));
 	}
 
 #if WINDOWS
 	private static void Current_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
 	{
-		OnException?.Invoke(sender, ("Microsoft.UI.Xaml.Application.Current.UnhandledException", e.Exception));
-		e.Handled = true;
+		var args = new ExceptionEventArgs("Microsoft.UI.Xaml.Application.Current.UnhandledException", e.Exception);
+		OnException?.Invoke(sender, args);
+		if (args.Handled)
+			e.Handled = true;
 	}
 #elif ANDROID
 	private static void AndroidEnvironment_UnhandledExceptionRaiser(object sender, Android.Runtime.RaiseThrowableEventArgs e)
 	{
-		OnException?.Invoke(sender, ("Android.Runtime.AndroidEnvironment.UnhandledExceptionRaiser", e.Exception));
-		e.Handled = true;
+		var args = new ExceptionEventArgs("Android.Runtime.AndroidEnvironment.UnhandledExceptionRaiser", e.Exception);
+		OnException?.Invoke(sender, args);
+		
+		if (args.Handled)
+			e.Handled = true;
 	}
 #elif IOS || MACCATALYST
 	private static void Runtime_MarshalManagedException(object sender, ObjCRuntime.MarshalManagedExceptionEventArgs e)
 	{
 		e.ExceptionMode = ObjCRuntime.MarshalManagedExceptionMode.UnwindNativeCode;
-		OnException?.Invoke(sender, ("ObjCRuntime.Runtime.MarshalManagedException", e.Exception));
+		OnException?.Invoke(sender, new ("ObjCRuntime.Runtime.MarshalManagedException", e.Exception));
 	}
 #endif
 

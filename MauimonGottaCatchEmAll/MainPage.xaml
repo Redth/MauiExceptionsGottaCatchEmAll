@@ -3,18 +3,22 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauimonGottaCatchEmAll.MainPage">
 
-        <Grid RowDefinitions="Auto,*">
-            <Button
+        <Grid RowDefinitions="Auto,Auto,*">
+        <Button
                 Grid.Row="0"
-                Text="Throw Exception"
+                Text="Throw Exception (Not Handled)"
                 Clicked="OnCounterClicked" />
+        <Button
+                Grid.Row="1"
+                Text="Throw Exception (Try to Handle it)"
+                Clicked="Button_Clicked" />
 
-            <CollectionView Grid.Row="1" x:Name="cv" BackgroundColor="Tan">
+        <CollectionView Grid.Row="2" x:Name="cv" BackgroundColor="Tan">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                     <Grid RowDefinitions="Auto,*">
-                        <Label Text="{Binding Name}" FontAttributes="Bold" Grid.Row="0" />
-                            <Label Text="{Binding Exception}" Grid.Row="1" />
+                        <Label Text="{Binding Source}" FontAttributes="Bold" Grid.Row="0" />
+                            <Label Text="{Binding ExceptionString}" Grid.Row="1" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

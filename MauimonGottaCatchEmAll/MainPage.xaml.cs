@@ -15,23 +15,34 @@ public partial class MainPage : ContentPage
 		cv.ItemsSource = Exceptions;
 	}
 
+	bool TryToHandle = false;
 
-	public ObservableCollection<ExceptionDetails> Exceptions = new ();
+	public ObservableCollection<ExceptionEventArgs> Exceptions = new ();
 
 	static object lockObj = new object();
 
-	private void MauiProgram_OnException(object sender, (string, Exception) e)
+	private void MauiProgram_OnException(object sender, ExceptionEventArgs e)
 	{
-		System.Diagnostics.Debug.WriteLine(e.Item1 + ": " + e.Item2);
+		System.Diagnostics.Debug.WriteLine($"{e.Source}: {e.ExceptionString}");
 
 		lock (lockObj)
 		{
-			Exceptions.Add(new ExceptionDetails(e.Item1, e.Item2.ToString()));
+			Exceptions.Add(e);
 		}
+
+		if (TryToHandle)
+			e.Handled = true;
 	}
 
 	private void OnCounterClicked(object sender, EventArgs e)
 	{
+		TryToHandle = false;
+		throw new Exception("void");
+	}
+
+	private void Button_Clicked(object sender, EventArgs e)
+	{
+		TryToHandle = true;
 		throw new Exception("void");
 	}
 }
