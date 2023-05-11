@@ -18,11 +18,16 @@ public partial class MainPage : ContentPage
 
 	public ObservableCollection<ExceptionDetails> Exceptions = new ();
 
+	static object lockObj = new object();
+
 	private void MauiProgram_OnException(object sender, (string, Exception) e)
 	{
 		System.Diagnostics.Debug.WriteLine(e.Item1 + ": " + e.Item2);
 
-		Exceptions.Add(new ExceptionDetails(e.Item1, e.Item2.ToString()));
+		lock (lockObj)
+		{
+			Exceptions.Add(new ExceptionDetails(e.Item1, e.Item2.ToString()));
+		}
 	}
 
 	private void OnCounterClicked(object sender, EventArgs e)
