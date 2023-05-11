@@ -57,6 +57,7 @@ public static class MauiProgram
 	private static void AndroidEnvironment_UnhandledExceptionRaiser(object sender, Android.Runtime.RaiseThrowableEventArgs e)
 	{
 		OnException?.Invoke(sender, ("Android.Runtime.AndroidEnvironment.UnhandledExceptionRaiser", e.Exception));
+		e.Handled = true;
 	}
 #elif IOS || MACCATALYST
 	private static void Runtime_MarshalManagedException(object sender, ObjCRuntime.MarshalManagedExceptionEventArgs e)
